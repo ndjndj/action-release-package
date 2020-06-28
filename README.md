@@ -1,3 +1,3 @@
 # DigDocDuck
 
-DigDocDuck is *Markdown Editor*.
+DigDocDuck is **Markdown Editor** made by ndjndj.
