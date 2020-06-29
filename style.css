@@ -30,4 +30,28 @@ aside {
 main {
     grid-row: main;
     grid-column: 2 / span 6;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: [title]100px [button]30px [main]500px; 
+    grid-row-gap: 2%;
+    grid-column-gap: 1%;
+}
+
+#md-title {
+    grid-row: title;
+    grid-column: 1 / span 6;
+    padding: 5px;
+    margin: auto;
+}
+
+#md-save {
+    grid-row: button;
+    grid-column: 1 / 2;
+    padding: 5px;
+    margin: auto;
+}
+
+#md-editor {
+    grid-row: main;
+    grid-column: 1 / span 6;
 }
