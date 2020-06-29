@@ -1,8 +1,19 @@
 const { app, Menu, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
+
 
 let mainWindow;
+
+const dirPath = '.';
+
+// "path/to/target" 直下のファイルやディレクトリ全てがDirentオブジェクトの配列で返ってくる
+const allDirents = fs.readdirSync(dirPath, { withFileTypes: true });
+
+const fileNames = allDirents.filter(dirent => dirent.isFile()).map(({ name }) => name);
+
+
 
 function createWindow() {
     mainWindow = new BrowserWindow({ width: 800, height: 600 });
