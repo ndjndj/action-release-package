@@ -13,7 +13,9 @@ const allDirents = fs.readdirSync(dirPath, { withFileTypes: true });
 
 const fileNames = allDirents.filter(dirent => dirent.isFile()).map(({ name }) => name);
 
+console.log(typeof fileNames);
 
+console.log(fileNames);
 
 function createWindow() {
     mainWindow = new BrowserWindow({ width: 800, height: 600 });
@@ -26,7 +28,7 @@ function createWindow() {
 
     // 開発ツールを有効化
     mainWindow.webContents.openDevTools();
-
+    
     Menu.setApplicationMenu(null);
 
     mainWindow.on('closed', () => {

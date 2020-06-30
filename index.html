@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="node_modules/simplemde/dist/simplemde.min.css">
     <script src="node_modules/simplemde/dist/simplemde.min.js"></script>
+    <script src="htmlFuncs.js"></script>
     <title>Markdown test</title>
 </head>
 <body>
@@ -36,8 +37,8 @@
         const simplemde = new SimpleMDE({
             element: document.getElementById("editor")
         });
-
-
+    
+        getDirTree();
     </script>
 </body>
 </html>
