@@ -1,15 +1,21 @@
+# main ブランチに最新コードが push された際に、
+# 事前に用意した include.txt で指定している必要なファイル、ディレクトリ群のみを
+# preproduction ブランチにコミットする
+
 name: Prepare release packages
 
 on: 
+  workflow_dispatch:
   push:
     branches:
       - main 
     paths: 
-      - '.github/include.txt'
       - '**'
-      - '!.github/**'
-      - '!packages/**'
-      
+
+defaults:
+  run:
+    shell: bash
+
 jobs: 
   prepare-release-package:
     runs-on: ubuntu-latest
@@ -18,7 +24,7 @@ jobs:
       - name: Checkout repository 
         uses: actions/checkout@v4
         with: 
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Configure Git 
         run: |
