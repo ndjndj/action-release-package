@@ -1,0 +1,4 @@
+src/
+static/
+index.html
+.htaccess
