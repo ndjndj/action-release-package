@@ -1,0 +1,83 @@
+name: Prepare release packages
+
+on: 
+  push:
+    branches:
+      - main 
+    paths: 
+      - '.github/include.txt'
+      - '**'
+      - '!.github/**'
+      - '!packages/**'
+      
+jobs: 
+  prepare-release-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps: 
+      - name: Checkout repository 
+        uses: actions/checkout@v4
+        with: 
+          fetch-depth: 0
+
+      - name: Configure Git 
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@github.com'
+
+      - name: Check if changes are in included paths 
+        id: check-paths 
+        run: |
+          # load target files/directories from '.github/include.txt'
+          INCLUDE_PATHS=$(cat '.github/include.txt')
+          CHANGED_FILES=$(git diff --name-only HEAD^)
+
+          SHOULD_SYNC="false"
+          while IFS= read -r file; do 
+            while IFS= read -r include_path; do 
+              echo "Checking file: $file"
+              echo "Against include_path: $include_path"
+              if [[ "$file" == "$include_path" ]] || [[ $file =~ ^$include_path* ]]; then
+                SHOULD_SYNC="true"
+                echo "match found."
+                break 2 
+              fi 
+            done <<< "$INCLUDE_PATHS"
+          done <<< "$CHANGED_FILES"
+
+          echo "should_sync=$SHOULD_SYNC" >> $GITHUB_OUTPUT
+
+      - name: Sync specific files to preproduction
+        if: steps.check-paths.outputs.should_sync == 'true'
+        run: |
+          INCLUDE_PATHS=$(cat '.github/include.txt')
+          git fetch origin main
+          git checkout -b preproduction 
+          git checkout -b tmp-sync 
+
+          #remove all files except .git
+          find . -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} + 
+
+          #checkout files/directories listed in include.txt
+          while IFS= read -r path; do 
+            normalized_path="$(echo -e "${path}" | sed -e 's/\r//g')"
+            echo "checking include_path: $path"
+            echo "checking normalized_path: $normalized_path"
+            if [[ -n $normalized_path && ! $normalized_path =~ ^[[:space:]]*# ]]; then 
+              echo "match found."
+              git checkout main -- $normalized_path* || echo "WARNING: Failed to checkout $path"
+            fi 
+
+          done <<< "$INCLUDE_PATHS"
+
+          git add -A 
+          git commit -m "SYNC: Update from main branch" || echo "No Changes to commit"
+
+          git push origin tmp-sync:preproduction -f 
+
+      - name: Cleanup 
+        if: always()
+        run: |
+          git checkout main 
+          git branch -D tmp-sync || true 
+          git branch -D preproduction || true
